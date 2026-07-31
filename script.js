@@ -67,9 +67,8 @@ const siteData = {
       linkText: "View Instagram collaboration",
       link: "#",
       note: "Replace this temporary link with the Instagram Reel URL.",
-      mediaType: "placeholder",
-      mediaTitle: "Instagram Reel",
-      mediaText: "Paste your existing Instagram embed code here."
+      mediaType: "instagram",
+      permalink: "https://www.instagram.com/reel/C8dN89XOG8a/?utm_source=ig_embed&utm_campaign=loading"
     },
     {
       kicker: "Emergency shelter meal support",
@@ -176,16 +175,34 @@ renderList("#founder-list", siteData.founders, (founder) => html`
 `);
 
 renderList("#partnership-list", siteData.partnerships, (partner) => {
-  const media = partner.mediaType === "image"
-    ? `<div class="partnership-card__media"><img src="${partner.image}" alt="${partner.alt}"></div>`
-    : html`
-        <div class="partnership-card__media">
-          <div class="partnership-card__placeholder">
-            <strong>${partner.mediaTitle}</strong>
-            <span>${partner.mediaText}</span>
-          </div>
+  let media;
+
+  if (partner.mediaType === "image") {
+    media = `<div class="partnership-card__media"><img src="${partner.image}" alt="${partner.alt}"></div>`;
+  } else if (partner.mediaType === "instagram") {
+    media = html`
+      <div class="partnership-card__media partnership-card__media--instagram">
+        <blockquote
+          class="instagram-media"
+          data-instgrm-captioned
+          data-instgrm-permalink="${partner.permalink}"
+          data-instgrm-version="14"
+        >
+          <a href="${partner.permalink}" target="_blank" rel="noopener noreferrer">
+            View this Reel on Instagram
+          </a>
+        </blockquote>
+      </div>
+    `;
+  } else {
+    media = html`
+      <div class="partnership-card__media">
+        <div class="partnership-card__placeholder">
+          <strong>Community partnership</strong>
         </div>
-      `;
+      </div>
+    `;
+  }
 
   return html`
     <article class="partnership-card reveal">
@@ -228,6 +245,17 @@ renderList("#support-list", siteData.supportItems, (item) => html`
     </div>
   </article>
 `);
+
+function processInstagramEmbeds() {
+  if (window.instgrm?.Embeds) {
+    window.instgrm.Embeds.process();
+    return;
+  }
+
+  window.setTimeout(processInstagramEmbeds, 300);
+}
+
+processInstagramEmbeds();
 
 const menuButton = document.querySelector(".menu-button");
 const menu = document.querySelector(".menu");
